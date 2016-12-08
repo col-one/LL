@@ -18,6 +18,5 @@ if not app:
 
 if __name__ == '__main__':
     MaxPlus.AttachQWidgetToMax(dd.implementation)
-    print 'dsdsd'
     dd.implementation.show()
     app.exec_()
