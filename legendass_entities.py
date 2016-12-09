@@ -76,6 +76,7 @@ class MaxFile(object):
     _files_patt = r"^([0-9]{3})_([0-9]{3})_([A-Z]{3})_(v[0-9]{3}).(max)$"
     @staticmethod
     def get_files(shot_path):
+        MaxFile._files = {}
         for dir in os.listdir(shot_path):
             reg_shot = re.match(MaxFile._files_patt, dir)
             dir_path = os.path.join(shot_path, dir)
@@ -86,7 +87,7 @@ class MaxFile(object):
     @staticmethod
     def file_path(file):
         if not isinstance(file, str):
-            raise TypeError("Shot must be string")
+            raise TypeError("File must be string")
         return MaxFile._files[file]
 
     @staticmethod
@@ -96,3 +97,21 @@ class MaxFile(object):
     @staticmethod
     def paths():
         return list(MaxFile._files.values())
+
+class AssetInfo(object):
+    def __init__(self, file_name):
+        ll_path = Episode.EPISODE_PATH
+        self.corres = {"LAY":"04_LAYOUT", "BLK":"08_BLK", "ANI":"07_ANIM", "FLA":"09_FLANIM",
+                       "RDR":"10_RENDU", "FXS":"11_FX", "CMP":"20_COMPO"}
+        patt = MaxFile._files_patt
+        match_name = re.match(patt, file_name)
+        if match_name is None:
+            raise TypeError("Ce fichier n'est pas un fichier valide Legendaire")
+        self.episode = match_name.groups()[0]
+        self.shot = match_name.groups()[1]
+        self.etape = match_name.groups()[2]
+        self.str_version = match_name.groups()[3]
+        self.version = int(self.str_version.replace("v",""))
+        self.extension = match_name.groups()[4]
+
+

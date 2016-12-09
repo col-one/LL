@@ -12,6 +12,10 @@ La specialiste de 3dsmax cest de tou foutre dans un seul fichier ! Je suis oblig
 sinon je doit utiliser app.exec ce qui fou en lair le viewport....
 """
 
+class MaxFile(object):
+    def __init__(self):
+        self.file_name = MaxPlus.FileManager.GetFileName()
+
 class OpenFile(object):
     def __init__(self, file_path):
         self.file_path = file_path
@@ -74,10 +78,12 @@ class ColumnSplit(QSplitter):
         #get liste episodes
         self.ep_node = legendass_entities.Episode.get_episodes()
         self.ep_list = self.ep_node.episodes()
+
+        self.l_episode.addItems(self.ep_list)
+
         # set implementation
         self.l_episode.itemSelectionChanged.connect(self.change_ep_select)
         self.l_file.itemDoubleClicked.connect(self.open_file)
-        self.l_episode.addItems(self.ep_list)
 
     def change_ep_select(self):
         try:
@@ -139,32 +145,99 @@ class ColumnSplit(QSplitter):
         OpenFile(file_path)
         self.l_file.setFocus()
 
+class ColumnCreate(QSplitter):
+    def __init__(self, *args):
+        super(ColumnCreate, self).__init__()
+        #attr
+        self.et_preset = ["ANIM","ANIMATIQUE","BG","BLK","COMPO","DETECT","FLANIM","FX","LAYOUT","PROD","RENDU","STORYBOARD"]
+        # widgets
+        self.w_et = QWidget()
+        self.l_etape = QListWidget()
+        self.l_file = QListWidget()
+        self.lab_et = QLabel("Nouvelle Etapes : ")
+        self.empty_item = QListWidgetItem()
+        # layouts
+        self.lay_et = QVBoxLayout(self.w_et)
+        # settings
+        self.setGeometry(400, 300, 460, 450)
+        self.lay_et.addWidget(self.lab_et)
+        self.lay_et.addWidget(self.l_etape)
+        self.lay_et.setContentsMargins(5, 5, 5, 5)
+        self.addWidget(self.w_et)
+
+        # attr
+        self.implementation = self
+        self.ep_select = None
+        self.et_select = None
+        self.sh_select = None
+        self.fi_select = None
+        self.items_ls = 0
+        # get liste episodes
+        self.l_etape.addItems(self.et_preset)
+
+
+class TabWidget(QTabWidget):
+    def __init__(self, column_open, column_create):
+        super(TabWidget, self).__init__()
+        self.column_create = column_create
+        self.column_open = column_open
+
 
 class MainWidget(QWidget):
     def __init__(self):
         super(MainWidget, self).__init__()
+        #attr
+        self.asset = None
         #override attr
         self.setWindowTitle('Legendass')
         #widget
-        self.tab = QTabWidget()
         self.split_g = ColumnSplit(Qt.Horizontal)
+        self.split_c = ColumnCreate(Qt.Horizontal)
+        self.tab = TabWidget(self.split_g, self.split_c)
+        self.w_open = QWidget()
+        self.lay_open = QVBoxLayout(self.w_open)
+        self.w_create = QWidget()
+        self.lay_create = QVBoxLayout(self.w_create)
         self.lay = QVBoxLayout(self)
         self.btn_open = QPushButton("Open")
+        self.btn_create = QPushButton("Creer")
+        self.lab_create = QLabel("")
 
-
-        self.tab.addTab(self.split_g, "Open")
-        self.tab.addTab(QWidget(), "Create")
-        self.tab.addTab(QWidget(), "Save")
-        self.lay.addWidget(self.tab)
-        self.lay.addWidget(self.btn_open)
-        self.split_g.setSizes([50,130,100,180])
+        #override
+        self.lab_create.setFixedHeight(30)
         self.btn_open.setMinimumHeight(80)
+        self.btn_create.setMinimumHeight(80)
+
+        #set param
+        self.lay_open.addWidget(self.split_g)
+        self.lay_open.addWidget(self.btn_open)
+        self.lay_create.addWidget(self.split_c)
+        self.lay_create.addWidget(self.lab_create)
+        self.lay_create.addWidget(self.btn_create)
+
+
+        self.tab.addTab(self.w_open, "Open")
+        self.tab.addTab(self.w_create, "Create")
+        self.tab.addTab(QWidget(), "Save")
+
+        self.split_g.setSizes([50,130,100,180])
+        self.split_c.setSizes([50,130,100,180])
+
+        self.lay.addWidget(self.tab)
 
         #connect
         #implement episode select change
         self.btn_open.clicked.connect(self.split_g.open_file)
 
+        self.tab.currentChanged.connect(self.SetSelectionColumn)
 
+    def SetSelectionColumn(self):
+        try:
+            self.asset = legendass_entities.AssetInfo(MaxFile().file_name)
+            self.lab_create.setText("Tu vas creer un nouveau fichier a partir de l'etape {etape}"
+            .format(etape=self.asset.etape))
+        except TypeError:
+            print "invalide file"
 
 def main():
     app = QApplication.instance()
