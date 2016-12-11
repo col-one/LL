@@ -20,6 +20,10 @@ class MaxFile(object):
     def open_max(file):
         MaxPlus.FileManager.Open(file)
 
+    @staticmethod
+    def saveas_max(file):
+        MaxPlus.FileManager.Save(file)
+
 class OpenFile(object):
     def __init__(self, file_path):
         self.file_path = file_path
@@ -283,9 +287,16 @@ class MainWidget(QWidget):
         self.btn_create.clearFocus()
 
     def save(self):
+        self.asset = legendass_entities.AssetInfo(MaxFile().file_name)
+        ver = self.asset.proto.version + 1
+        self.asset.change_version(ver)
         asset_json = legendass_entities.Asset(MaxFile().file_name)
-        asset_json.add_version("003", "un com trop lol")
-
+        if legendass_entities.FileManage(self.asset.deduice_path()).exist:
+            raise IOError(self.asset.proto.file + " exite deja")
+        asset_json = legendass_entities.Asset(MaxFile().file_name)
+        asset_json.add_version(self.asset.proto.str_version_simple, "...")
+        MaxFile.saveas_max(self.asset.deduice_path())
+        print "info ! versionning succes"
         self.btn_save.clearFocus()
 
 def main():

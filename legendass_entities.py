@@ -92,7 +92,7 @@ class MaxFile(object):
 
     @staticmethod
     def files():
-        return list(MaxFile._files.keys())
+        return list(reversed(sorted(list(MaxFile._files.keys()))))
 
     @staticmethod
     def paths():
@@ -141,6 +141,7 @@ class ProtoAsset():
     str_version = None
     version = None
     extension = None
+    str_version_simple = None
 
 class AssetInfo(object):
     def __init__(self, file_name):
@@ -161,6 +162,7 @@ class AssetInfo(object):
         self.proto.etape_short =self.etape.short
         self.proto.etape_long = self.etape.long
         self.proto.str_version = match_name.groups()[3]
+        self.proto.str_version_simple = self.proto.str_version.replace("v","")
         self.proto.version = int(self.proto.str_version.replace("v",""))
         self.proto.extension = match_name.groups()[4]
 
@@ -195,7 +197,7 @@ class FileManage(object):
         self.file = file_path
         self.exist = None
         if not os.path.isfile(self.file):
-            self.is_valide = False
+            self.exist = False
         else:
             self.exist = True
 
@@ -248,7 +250,27 @@ class Asset(object):
     def add_version(self, vnum, comm):
         if any(d.keys()[0] == vnum for d in self.data["comment"]):
             raise ValueError(vnum + " existe deja, utilisez change_com() si vous voulez modifier")
+        self.compare_versions()
         self.data["comment"].append({vnum : comm})
         self.update_asset()
+
+    def list_realversion(self):
+        dir = os.path.dirname(self.path)
+        max_files = MaxFile().get_files(dir)
+        max_files = max_files.files()
+        real_versions = [AssetInfo(file_max).proto.str_version_simple for file_max in max_files]
+        return real_versions
+
+    def list_jsonversion(self):
+        dir = os.path.dirname(self.path)
+        json_versions = list(reversed(sorted([com.keys()[0] for com in self.data["comment"]])))
+        return json_versions
+
+    def compare_versions(self):
+        if not set(self.list_realversion()) == set(self.list_jsonversion()):
+            print "Warning ! les versions de l'asset et des fichiers ne correspondent pas," \
+                  "ca peut causer des problemes."
+
+
 
 
