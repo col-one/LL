@@ -1,6 +1,6 @@
 import os
 import re
-
+import json
 
 class Episode(object):
     EPISODE_PATH = "Z:\\LL_prod"
@@ -204,9 +204,51 @@ class FileManage(object):
             print("Warning ! {f} existe deja, pas de copy".format(f=dst))
             return False
         import shutil
-        try:
-            os.makedirs(os.path.dirname(dst))
-        except WindowsError:
-            print "integralite du path deja cree, pass."
         shutil.copy2(self.file, dst)
         return dst
+
+    def write_json(self, data):
+        try:
+            os.makedirs(os.path.dirname(self.file))
+        except WindowsError:
+            print "integralite du path deja cree, pass."
+        with open(self.file, 'w') as outfile:
+            json.dump(data, outfile)
+
+    def read_json(self):
+        with open(self.file, 'r') as outfile:
+            return json.load(outfile)
+
+class Asset(object):
+    def __init__(self, file_name):
+        self.name = None
+        self.versions = []
+        self.current_version = None
+        self.commentaires = {}
+        self.proto = AssetInfo(file_name)
+        self.path  = os.path.dirname( self.proto.deduice_path())+"\\"\
+                + self.proto.proto.shot_long+"_"+ self.proto.proto.etape_short+".asset"
+        self.data = {}
+        if FileManage(self.path).exist:
+            self.read_asset()
+
+    def create_asset(self):
+        data = {"name" :  self.proto.proto.shot_long + "_" +  self.proto.proto.etape_short,
+                       "comment" : [{"001":"first release"}]}
+        FileManage(self.path).write_json(data)
+
+    def read_asset(self):
+        data = FileManage(self.path).read_json()
+        self.data = data
+        return data
+
+    def update_asset(self):
+        FileManage(self.path).write_json(self.data)
+
+    def add_version(self, vnum, comm):
+        if any(d.keys()[0] == vnum for d in self.data["comment"]):
+            raise ValueError(vnum + " existe deja, utilisez change_com() si vous voulez modifier")
+        self.data["comment"].append({vnum : comm})
+        self.update_asset()
+
+

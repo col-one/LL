@@ -8,7 +8,7 @@ import qdarkstyle
 import copy
 reload(legendass_entities)
 """
-La specialiste de 3dsmax cest de tou foutre dans un seul fichier ! Je suis oblige
+La specialistee de 3dsmax cest de tout foutre dans un seul fichier ! Je suis oblige
 sinon je doit utiliser app.exec ce qui fou en lair le viewport....
 """
 
@@ -215,11 +215,14 @@ class MainWidget(QWidget):
         self.btn_create = QPushButton("Creer")
         self.lab_create = QLabel("")
         self.lab_create.setStyleSheet("QLabel { color : orange; }")
-
+        self.btn_save = QPushButton("Save and Version !!!")
+        self.w_save = QWidget()
+        self.lay_save = QVBoxLayout(self.w_save)
         #override
         self.lab_create.setFixedHeight(30)
         self.btn_open.setMinimumHeight(80)
         self.btn_create.setMinimumHeight(80)
+        self.btn_save.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         #set param
         self.lay_open.addWidget(self.split_g)
@@ -227,11 +230,12 @@ class MainWidget(QWidget):
         self.lay_create.addWidget(self.split_c)
         self.lay_create.addWidget(self.lab_create)
         self.lay_create.addWidget(self.btn_create)
+        self.lay_save.addWidget(self.btn_save)
 
 
         self.tab.addTab(self.w_open, "Open")
         self.tab.addTab(self.w_create, "Create")
-        self.tab.addTab(QWidget(), "Save")
+        self.tab.addTab(self.w_save, "Save")
         self.tab.addTab(QWidget(), "Settings")
 
         self.split_g.setSizes([50,130,100,180])
@@ -243,7 +247,7 @@ class MainWidget(QWidget):
         #implement episode select change
         self.btn_open.clicked.connect(self.split_g.open_file)
         self.btn_create.clicked.connect(self.create)
-
+        self.btn_save.clicked.connect(self.save)
         self.tab.currentChanged.connect(self.setSelectionColumn)
         self.split_c.l_etape.itemSelectionChanged.connect(self.setSelectionColumn)
 
@@ -277,6 +281,12 @@ class MainWidget(QWidget):
         if rep == QMessageBox.Yes:
             MaxFile.open_max(self.asset.file_path)
         self.btn_create.clearFocus()
+
+    def save(self):
+        asset_json = legendass_entities.Asset(MaxFile().file_name)
+        asset_json.add_version("003", "un com trop lol")
+
+        self.btn_save.clearFocus()
 
 def main():
     app = QApplication.instance()
