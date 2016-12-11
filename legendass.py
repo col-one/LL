@@ -6,7 +6,7 @@ import MaxPlus
 import legendass_entities
 import qdarkstyle
 import copy
-
+reload(legendass_entities)
 """
 La specialiste de 3dsmax cest de tou foutre dans un seul fichier ! Je suis oblige
 sinon je doit utiliser app.exec ce qui fou en lair le viewport....
@@ -15,6 +15,10 @@ sinon je doit utiliser app.exec ce qui fou en lair le viewport....
 class MaxFile(object):
     def __init__(self):
         self.file_name = MaxPlus.FileManager.GetFileName()
+
+    @staticmethod
+    def open_max(file):
+        MaxPlus.FileManager.Open(file)
 
 class OpenFile(object):
     def __init__(self, file_path):
@@ -149,7 +153,7 @@ class ColumnCreate(QSplitter):
     def __init__(self, *args):
         super(ColumnCreate, self).__init__()
         #attr
-        self.et_preset = ["ANIM","ANIMATIQUE","BG","BLK","COMPO","DETECT","FLANIM","FX","LAYOUT","PROD","RENDU","STORYBOARD"]
+        self.et_preset = ["ANIM","BLK","COMPO","FLANIM","FX","LAYOUT","RENDU"]
         # widgets
         self.w_et = QWidget()
         self.l_etape = QListWidget()
@@ -168,12 +172,20 @@ class ColumnCreate(QSplitter):
         # attr
         self.implementation = self
         self.ep_select = None
-        self.et_select = None
+        self.et_select = QListWidgetItem()
         self.sh_select = None
         self.fi_select = None
         self.items_ls = 0
         # get liste episodes
         self.l_etape.addItems(self.et_preset)
+
+        self.l_etape.itemSelectionChanged.connect(self.change_et_select)
+
+    def change_et_select(self):
+        try:
+            self.et_select = self.l_etape.selectedItems()[0]
+        except IndexError:
+            pass
 
 
 class TabWidget(QTabWidget):
@@ -202,6 +214,7 @@ class MainWidget(QWidget):
         self.btn_open = QPushButton("Open")
         self.btn_create = QPushButton("Creer")
         self.lab_create = QLabel("")
+        self.lab_create.setStyleSheet("QLabel { color : orange; }")
 
         #override
         self.lab_create.setFixedHeight(30)
@@ -219,6 +232,7 @@ class MainWidget(QWidget):
         self.tab.addTab(self.w_open, "Open")
         self.tab.addTab(self.w_create, "Create")
         self.tab.addTab(QWidget(), "Save")
+        self.tab.addTab(QWidget(), "Settings")
 
         self.split_g.setSizes([50,130,100,180])
         self.split_c.setSizes([50,130,100,180])
@@ -228,16 +242,41 @@ class MainWidget(QWidget):
         #connect
         #implement episode select change
         self.btn_open.clicked.connect(self.split_g.open_file)
+        self.btn_create.clicked.connect(self.create)
 
-        self.tab.currentChanged.connect(self.SetSelectionColumn)
+        self.tab.currentChanged.connect(self.setSelectionColumn)
+        self.split_c.l_etape.itemSelectionChanged.connect(self.setSelectionColumn)
 
-    def SetSelectionColumn(self):
+    def setSelectionColumn(self):
         try:
             self.asset = legendass_entities.AssetInfo(MaxFile().file_name)
-            self.lab_create.setText("Tu vas creer un nouveau fichier a partir de l'etape {etape}"
-            .format(etape=self.asset.etape))
+            self.lab_create.setText("Tu vas creer un nouveau fichier {new} a partir de l'etape {etape}"
+                                    " pour le shot {shot} de l'episode {ep}"
+            .format(etape=self.asset.proto.etape, shot=self.asset.proto.shot,
+                    ep=self.asset.proto.episode, new=self.split_c.et_select.text()))
         except TypeError:
-            print "invalide file"
+            self.lab_create.setText("Fichier invalide")
+
+    def create(self):
+        new_etape = self.split_c.et_select.text()
+        self.asset = legendass_entities.AssetInfo(MaxFile().file_name)
+        self.current_asset = copy.deepcopy(self.asset)
+        self.asset.change_etape(str(new_etape))
+        self.asset.change_version(1)
+        current_file = legendass_entities.FileManage(self.current_asset.deduice_path())
+        if not current_file.copy_file(self.asset.deduice_path()):
+            rep = QMessageBox.question(self, "Legendass", "Le fichier {f} que tu tentes de creer existe deja, "
+                                                        "veux tu creer une nouvelle version?".format(f=self.asset.proto.file),
+                                       QMessageBox.Yes|QMessageBox.No)
+            if rep == QMessageBox.Yes:
+                return
+            else:
+                return
+        rep = QMessageBox.question(self, "Legendass", "Voulez vous ouvrir le fichier cree?",
+                                   QMessageBox.Yes | QMessageBox.No)
+        if rep == QMessageBox.Yes:
+            MaxFile.open_max(self.asset.file_path)
+        self.btn_create.clearFocus()
 
 def main():
     app = QApplication.instance()
@@ -253,14 +292,11 @@ def main():
     _GCProtector.controls.append(mainwindow)
     MaxPlus.AttachQWidgetToMax(ui)
     mainwindow.setCentralWidget(ui)
-    mainwindow.setGeometry(400, 300, 460, 450)
+    mainwindow.setGeometry(0, 300, 550, 450)
     app.setStyleSheet(qdarkstyle.load_stylesheet())
     mainwindow.show()
 
 if __name__ == '__main__':
-    # st = open("C:\\Users\\DO\\PycharmProjects\\LL\\ressources\\darkorange.stylesheet")
-    # style = st.read()
-    # app.setStyleSheet(style)
     time = MaxPlus.Core.GetCurrentTime()
     MaxPlus.ViewportManager.RedrawViews(time)
     main()
