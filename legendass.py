@@ -222,6 +222,10 @@ class MainWidget(QWidget):
         self.btn_save = QPushButton("Save and Version !!!")
         self.w_save = QWidget()
         self.lay_save = QVBoxLayout(self.w_save)
+        self.w_tools = QWidget()
+        self.lay_tools = QVBoxLayout(self.w_tools)
+        self.btn_llanim = QPushButton("LL_Anim")
+
         #override
         self.lab_create.setFixedHeight(30)
         self.btn_open.setMinimumHeight(80)
@@ -236,10 +240,10 @@ class MainWidget(QWidget):
         self.lay_create.addWidget(self.btn_create)
         self.lay_save.addWidget(self.btn_save)
 
-
         self.tab.addTab(self.w_open, "Open")
         self.tab.addTab(self.w_create, "Create")
         self.tab.addTab(self.w_save, "Save")
+        self.tab.addTab(self.w_tools, "Tools")
         self.tab.addTab(QWidget(), "Settings")
 
         self.split_g.setSizes([50,130,100,180])
@@ -280,6 +284,9 @@ class MainWidget(QWidget):
                 return
             else:
                 return
+        else:
+            asset_json = legendass_entities.Asset(self.asset.proto.file)
+            asset_json.create_asset()
         rep = QMessageBox.question(self, "Legendass", "Voulez vous ouvrir le fichier cree?",
                                    QMessageBox.Yes | QMessageBox.No)
         if rep == QMessageBox.Yes:
@@ -296,7 +303,7 @@ class MainWidget(QWidget):
             raise IOError(self.asset.proto.file + " exite deja")
         asset_json.add_version(self.asset.proto.str_version_simple, "...")
         MaxFile.saveas_max(self.asset.deduice_path())
-        print "info ! versionning succes"
+        print "OK info ! versionning success"
         self.btn_save.clearFocus()
 
 def main():

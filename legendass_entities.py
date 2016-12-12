@@ -119,7 +119,7 @@ class EtapeFile():
         elif et in [value.split("_")[-1] for value in self.corres.values()]:
             self.normal = et
             for key, value in  self.corres.iteritems():
-                if et in value:
+                if et == value.split("_")[-1]:
                     self.long = value
                     self.short = key
         else:
