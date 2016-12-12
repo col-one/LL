@@ -228,6 +228,7 @@ class MainWidget(QWidget):
         self.btn_llanimLoad = QPushButton("LL_Anim_Load/Save")
         self.btn_llbip = QPushButton("LL_BipLoader")
         self.btn_llmerge = QPushButton("LL_Merge")
+        self.btn_llpreview = QPushButton("LL_Preview")
 
 
         #override
@@ -247,6 +248,7 @@ class MainWidget(QWidget):
         self.lay_tools.addWidget(self.btn_llanimLoad)
         self.lay_tools.addWidget(self.btn_llbip)
         self.lay_tools.addWidget(self.btn_llmerge)
+        self.lay_tools.addWidget(self.btn_llpreview)
 
         self.tab.addTab(self.w_open, "Open")
         self.tab.addTab(self.w_create, "Create")
@@ -270,6 +272,7 @@ class MainWidget(QWidget):
         self.btn_llanimLoad.clicked.connect(self.launch_ll_animload)
         self.btn_llbip.clicked.connect(self.launch_ll_bip)
         self.btn_llmerge.clicked.connect(self.launch_ll_merge)
+        self.btn_llpreview.clicked.connect(self.launch_ll_preview)
 
 
     def launch_ll_anim(self):
@@ -284,6 +287,9 @@ class MainWidget(QWidget):
     def launch_ll_merge(self):
         MaxPlus.Core.EvalMAXScript('fileIn "Z:\\LL_common\\Script\\LL_MERGE\\LL_MERGE.ms"')
         self.btn_llmerge.clearFocus()
+    def launch_ll_preview(self):
+        MaxPlus.Core.EvalMAXScript('fileIn "Z:\\LL_common\\Script\\LL_MAKE_PREVIEW_v004\\make_preview_legendaires_TNZPV.ms"')
+        self.btn_llpreview.clearFocus()
 
     def setSelectionColumn(self):
         try:
