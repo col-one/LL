@@ -50,7 +50,7 @@ class Etape(object):
 
 class Shot(object):
     _shots = {}
-    _shots_patt = r"^([0-9]{3})_([0-9]{3})$"
+    _shots_patt = r"^([0-9]{3})_([0-9]{3}[A-D]?)$"
     @staticmethod
     def get_shots(etape_path):
         Shot._shots = {}
@@ -73,7 +73,7 @@ class Shot(object):
 
 class MaxFile(object):
     _files = {}
-    _files_patt = r"^([0-9]{3})_([0-9]{3})_([A-Z]{3})_(v[0-9]{3}).(max)$"
+    _files_patt = r"^([0-9]{3})_([0-9]{3}[A-D]?)_([A-Z]{3})_(v[0-9]{3}).(max)$"
     @staticmethod
     def get_files(shot_path):
         MaxFile._files = {}
