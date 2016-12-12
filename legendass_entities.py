@@ -231,6 +231,7 @@ class Asset(object):
         self.path  = os.path.dirname( self.proto.deduice_path())+"\\"\
                 + self.proto.proto.shot_long+"_"+ self.proto.proto.etape_short+".asset"
         self.data = {}
+        self.last_real_version = self.list_realversion()[0]
         if FileManage(self.path).exist:
             self.read_asset()
 

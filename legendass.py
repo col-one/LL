@@ -288,12 +288,12 @@ class MainWidget(QWidget):
 
     def save(self):
         self.asset = legendass_entities.AssetInfo(MaxFile().file_name)
-        ver = self.asset.proto.version + 1
+        asset_json = legendass_entities.Asset(MaxFile().file_name)
+        ver = int(asset_json.last_real_version) + 1
         self.asset.change_version(ver)
         asset_json = legendass_entities.Asset(MaxFile().file_name)
         if legendass_entities.FileManage(self.asset.deduice_path()).exist:
             raise IOError(self.asset.proto.file + " exite deja")
-        asset_json = legendass_entities.Asset(MaxFile().file_name)
         asset_json.add_version(self.asset.proto.str_version_simple, "...")
         MaxFile.saveas_max(self.asset.deduice_path())
         print "info ! versionning succes"
