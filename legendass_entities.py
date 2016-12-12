@@ -202,6 +202,14 @@ class FileManage(object):
             self.exist = True
 
     def copy_file(self, dst):
+        try:
+            os.makedirs(os.path.dirname(self.file))
+        except WindowsError:
+            print "integralite du path deja cree, pass."
+        try:
+            os.makedirs(os.path.dirname(dst))
+        except WindowsError:
+            print "integralite du path dst deja cree, pass."
         if os.path.isfile(dst):
             print("Warning ! {f} existe deja, pas de copy".format(f=dst))
             return False

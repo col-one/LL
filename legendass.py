@@ -230,12 +230,16 @@ class MainWidget(QWidget):
         self.btn_llmerge = QPushButton("LL_Merge")
         self.btn_llpreview = QPushButton("LL_Preview")
 
-
         #override
         self.lab_create.setFixedHeight(30)
         self.btn_open.setMinimumHeight(80)
         self.btn_create.setMinimumHeight(80)
         self.btn_save.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.btn_llanim.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.btn_llanimLoad.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.btn_llmerge.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.btn_llpreview.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.btn_llbip.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         #set param
         self.lay_open.addWidget(self.split_g)
@@ -274,7 +278,7 @@ class MainWidget(QWidget):
         self.btn_llmerge.clicked.connect(self.launch_ll_merge)
         self.btn_llpreview.clicked.connect(self.launch_ll_preview)
 
-
+    #tools
     def launch_ll_anim(self):
         MaxPlus.Core.EvalMAXScript('fileIn "Z:\\LL_common\\Script\\LL_ANIM_AUTORIG\\LL_ANIM_AUTORIG.ms"')
         self.btn_llanim.clearFocus()
@@ -313,7 +317,15 @@ class MainWidget(QWidget):
                                                         "veux tu creer une nouvelle version?".format(f=self.asset.proto.file),
                                        QMessageBox.Yes|QMessageBox.No)
             if rep == QMessageBox.Yes:
-                return
+                asset_json = legendass_entities.Asset(MaxFile().file_name)
+                ver = int(asset_json.last_real_version) + 1
+                self.asset.change_version(ver)
+                asset_json = legendass_entities.Asset(MaxFile().file_name)
+                if legendass_entities.FileManage(self.asset.deduice_path()).exist:
+                    raise IOError(self.asset.proto.file + " exite deja")
+                asset_json.add_version(self.asset.proto.str_version_simple, "...")
+                #MaxFile.saveas_max(self.asset.deduice_path())
+                current_file.copy_file(self.asset.deduice_path())
             else:
                 return
         else:
