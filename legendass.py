@@ -225,6 +225,10 @@ class MainWidget(QWidget):
         self.w_tools = QWidget()
         self.lay_tools = QVBoxLayout(self.w_tools)
         self.btn_llanim = QPushButton("LL_Anim")
+        self.btn_llanimLoad = QPushButton("LL_Anim_Load/Save")
+        self.btn_llbip = QPushButton("LL_BipLoader")
+        self.btn_llmerge = QPushButton("LL_Merge")
+
 
         #override
         self.lab_create.setFixedHeight(30)
@@ -239,6 +243,10 @@ class MainWidget(QWidget):
         self.lay_create.addWidget(self.lab_create)
         self.lay_create.addWidget(self.btn_create)
         self.lay_save.addWidget(self.btn_save)
+        self.lay_tools.addWidget(self.btn_llanim)
+        self.lay_tools.addWidget(self.btn_llanimLoad)
+        self.lay_tools.addWidget(self.btn_llbip)
+        self.lay_tools.addWidget(self.btn_llmerge)
 
         self.tab.addTab(self.w_open, "Open")
         self.tab.addTab(self.w_create, "Create")
@@ -258,6 +266,24 @@ class MainWidget(QWidget):
         self.btn_save.clicked.connect(self.save)
         self.tab.currentChanged.connect(self.setSelectionColumn)
         self.split_c.l_etape.itemSelectionChanged.connect(self.setSelectionColumn)
+        self.btn_llanim.clicked.connect(self.launch_ll_anim)
+        self.btn_llanimLoad.clicked.connect(self.launch_ll_animload)
+        self.btn_llbip.clicked.connect(self.launch_ll_bip)
+        self.btn_llmerge.clicked.connect(self.launch_ll_merge)
+
+
+    def launch_ll_anim(self):
+        MaxPlus.Core.EvalMAXScript('fileIn "Z:\\LL_common\\Script\\LL_ANIM_AUTORIG\\LL_ANIM_AUTORIG.ms"')
+        self.btn_llanim.clearFocus()
+    def launch_ll_animload(self):
+        MaxPlus.Core.EvalMAXScript('fileIn "Z:\\LL_common\\Script\\LH_SaveAnimTool-v0.91.mse"')
+        self.btn_llanimLoad.clearFocus()
+    def launch_ll_bip(self):
+        MaxPlus.Core.EvalMAXScript('fileIn "Z:\\LL_common\\Script\\LH_MotionCapture-v0.5.2-Beta.mse"')
+        self.btn_llbip.clearFocus()
+    def launch_ll_merge(self):
+        MaxPlus.Core.EvalMAXScript('fileIn "Z:\\LL_common\\Script\\LL_MERGE\\LL_MERGE.ms"')
+        self.btn_llmerge.clearFocus()
 
     def setSelectionColumn(self):
         try:
