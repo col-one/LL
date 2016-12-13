@@ -47,7 +47,7 @@ class ColumnSplit(QSplitter):
         self.l_episode = QListWidget()
         self.l_etape = QListWidget()
         self.l_shot = QListWidget()
-        self.l_file = QListWidget()
+        self.l_file = FileListWidget()
         self.lab_ep = QLabel("Episodes : ")
         self.lab_et = QLabel("Etapes : ")
         self.lab_sh = QLabel("Plans : ")
@@ -135,7 +135,8 @@ class ColumnSplit(QSplitter):
         # populate file list
         self.fi_node = legendass_entities.MaxFile.get_files(self.sh_node.shot_path(str(self.sh_select.text())))
         self.fi_list = self.fi_node.files()
-        self.l_file.addItems(self.fi_list)
+        self.l_file.files = self.fi_list
+        self.l_file.populate()
         self.items_ls += 1
 
     def open_file(self):
@@ -190,6 +191,43 @@ class ColumnCreate(QSplitter):
             self.et_select = self.l_etape.selectedItems()[0]
         except IndexError:
             pass
+
+class FileListWidget(QListWidget):
+    def __init__(self):
+        super(FileListWidget, self).__init__()
+        self.files = None
+
+    def populate(self):
+        e = 0
+        f = 0
+        i = 0
+        for file_max in self.files:
+            item_list = QListWidgetItem()
+            if i % 2 == 0:
+                it = QListWidgetItem(file_max)
+                e += 1
+                if e % 2 == 0:
+                    cq = QColor()
+                    cq.setNamedColor("#282B36")
+                    it.setBackground(cq)
+                else:
+                    cq = QColor()
+                    cq.setNamedColor("#3d404a")
+                    it.setBackground(cq)
+                self.addItem(it)
+            else:
+                f += 1
+                cb = QTextEdit("comsdma sadsdmf dfdsdfm sdf sdfsdms   cgdfgdf dgdgfdg ")
+                item_list.setSizeHint(QSize(25, 50))
+                if f % 2 == 0:
+                    cb.setStyleSheet("QTextEdit { background-color : #282B36;}")
+                else:
+                    cb.setStyleSheet("QTextEdit { background-color : #3d404a;}")
+                cb.setReadOnly(True)
+                cb.setFixedHeight ( 50)
+                self.addItem(item_list)
+                self.setItemWidget(item_list, cb)
+            i += 1
 
 
 class TabWidget(QTabWidget):
@@ -359,7 +397,7 @@ def main():
     mainwindow = QMainWindow()
     mainwindow.setObjectName("Legendass")
     mainwindow.setWindowTitle('Legendass')
-    mainwindow.setWindowFlags(Qt.Tool | Qt.WindowStaysOnTopHint | Qt.MSWindowsFixedSizeDialogHint)
+    mainwindow.setWindowFlags(Qt.Tool)
     mainwindow.setAttribute(Qt.WA_DeleteOnClose)
     mainwindow.setAttribute(Qt.WA_QuitOnClose)
     mainwindow.setAttribute(Qt.WA_X11NetWmWindowTypeDialog)
