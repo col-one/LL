@@ -317,10 +317,9 @@ class MainWidget(QWidget):
                                                         "veux tu creer une nouvelle version?".format(f=self.asset.proto.file),
                                        QMessageBox.Yes|QMessageBox.No)
             if rep == QMessageBox.Yes:
-                asset_json = legendass_entities.Asset(MaxFile().file_name)
+                asset_json = legendass_entities.Asset(self.asset.proto.file)
                 ver = int(asset_json.last_real_version) + 1
                 self.asset.change_version(ver)
-                asset_json = legendass_entities.Asset(MaxFile().file_name)
                 if legendass_entities.FileManage(self.asset.deduice_path()).exist:
                     raise IOError(self.asset.proto.file + " exite deja")
                 asset_json.add_version(self.asset.proto.str_version_simple, "...")
@@ -350,12 +349,15 @@ class MainWidget(QWidget):
         print "OK info ! versionning success"
         self.btn_save.clearFocus()
 
+
 def main():
     app = QApplication.instance()
     if not app:
         app = QApplication([])
+    app.closeAllWindows()
     ui = MainWidget()
     mainwindow = QMainWindow()
+    mainwindow.setObjectName("Legendass")
     mainwindow.setWindowTitle('Legendass')
     mainwindow.setWindowFlags(Qt.Tool | Qt.WindowStaysOnTopHint | Qt.MSWindowsFixedSizeDialogHint)
     mainwindow.setAttribute(Qt.WA_DeleteOnClose)
