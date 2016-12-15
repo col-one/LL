@@ -280,6 +280,9 @@ class Asset(object):
             print "Warning ! les versions de l'asset et des fichiers ne correspondent pas," \
                   "ca peut causer des problemes."
 
-
-
-
+    def comment(self, ver):
+        self.read_asset()
+        comments = self.data["comment"]
+        for com in comments:
+            if com.keys()[-1] == ver:
+                return com[ver]

@@ -203,30 +203,33 @@ class FileListWidget(QListWidget):
         i = 0
         for file_max in self.files:
             item_list = QListWidgetItem()
-            if i % 2 == 0:
-                it = QListWidgetItem(file_max)
-                e += 1
-                if e % 2 == 0:
-                    cq = QColor()
-                    cq.setNamedColor("#282B36")
-                    it.setBackground(cq)
-                else:
-                    cq = QColor()
-                    cq.setNamedColor("#3d404a")
-                    it.setBackground(cq)
-                self.addItem(it)
+            #if i % 2 == 0:
+            it = QListWidgetItem(file_max)
+            e += 1
+            if e % 2 == 0:
+                cq = QColor()
+                cq.setNamedColor("#282B36")
+                it.setBackground(cq)
             else:
-                f += 1
-                cb = QTextEdit("comsdma sadsdmf dfdsdfm sdf sdfsdms   cgdfgdf dgdgfdg ")
-                item_list.setSizeHint(QSize(25, 50))
-                if f % 2 == 0:
-                    cb.setStyleSheet("QTextEdit { background-color : #282B36;}")
-                else:
-                    cb.setStyleSheet("QTextEdit { background-color : #3d404a;}")
-                cb.setReadOnly(True)
-                cb.setFixedHeight ( 50)
-                self.addItem(item_list)
-                self.setItemWidget(item_list, cb)
+                cq = QColor()
+                cq.setNamedColor("#3d404a")
+                it.setBackground(cq)
+            self.addItem(it)
+        #else:
+            f += 1
+            json = legendass_entities.Asset(file_max)
+            info = legendass_entities.AssetInfo(file_max)
+            com = json.comment(info.proto.str_version_simple)
+            cb = QTextEdit(com)
+            item_list.setSizeHint(QSize(25, 50))
+            if f % 2 == 0:
+                cb.setStyleSheet("QTextEdit { background-color : #282B36;}")
+            else:
+                cb.setStyleSheet("QTextEdit { background-color : #3d404a;}")
+            cb.setReadOnly(True)
+            cb.setFixedHeight ( 50)
+            self.addItem(item_list)
+            self.setItemWidget(item_list, cb)
             i += 1
 
 
