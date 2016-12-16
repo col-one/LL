@@ -6,6 +6,7 @@ import MaxPlus
 import legendass_entities
 import qdarkstyle
 import copy
+import maxparenting
 reload(legendass_entities)
 """
 La specialistee de 3dsmax cest de tout foutre dans un seul fichier ! Je suis oblige
@@ -240,9 +241,9 @@ class TabWidget(QTabWidget):
         self.column_open = column_open
 
 
-class MainWidget(QWidget):
+class MainWidget(maxparenting.MaxWidget):
     def __init__(self):
-        super(MainWidget, self).__init__()
+        super(MainWidget, self).__init__("Legendass")
         #attr
         self.asset = None
         #override attr
@@ -270,11 +271,13 @@ class MainWidget(QWidget):
         self.btn_llbip = QPushButton("LL_BipLoader")
         self.btn_llmerge = QPushButton("LL_Merge")
         self.btn_llpreview = QPushButton("LL_Preview")
+        self.save_comment = QTextEdit()
 
         #override
         self.lab_create.setFixedHeight(30)
         self.btn_open.setMinimumHeight(80)
         self.btn_create.setMinimumHeight(80)
+        self.save_comment.setFixedHeight(50)
         self.btn_save.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.btn_llanim.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.btn_llanimLoad.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -288,6 +291,7 @@ class MainWidget(QWidget):
         self.lay_create.addWidget(self.split_c)
         self.lay_create.addWidget(self.lab_create)
         self.lay_create.addWidget(self.btn_create)
+        self.lay_save.addWidget(self.save_comment)
         self.lay_save.addWidget(self.btn_save)
         self.lay_tools.addWidget(self.btn_llanim)
         self.lay_tools.addWidget(self.btn_llanimLoad)
@@ -397,19 +401,11 @@ def main():
         app = QApplication([])
     app.closeAllWindows()
     ui = MainWidget()
-    mainwindow = QMainWindow()
-    mainwindow.setObjectName("Legendass")
-    mainwindow.setWindowTitle('Legendass')
-    mainwindow.setWindowFlags(Qt.Tool)
-    mainwindow.setAttribute(Qt.WA_DeleteOnClose)
-    mainwindow.setAttribute(Qt.WA_QuitOnClose)
-    mainwindow.setAttribute(Qt.WA_X11NetWmWindowTypeDialog)
-    _GCProtector.controls.append(mainwindow)
-    MaxPlus.AttachQWidgetToMax(ui)
-    mainwindow.setCentralWidget(ui)
-    mainwindow.setGeometry(0, 300, 550, 450)
+    _GCProtector.controls.append(ui)
+    MaxPlus.AttachQWidgetToMax(ui, isModelessDlg=False)
+    ui.setGeometry(0, 300, 550, 450)
     app.setStyleSheet(qdarkstyle.load_stylesheet())
-    mainwindow.show()
+    ui.show()
 
 if __name__ == '__main__':
     time = MaxPlus.Core.GetCurrentTime()
